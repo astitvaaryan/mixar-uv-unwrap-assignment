@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TEST_DATA_DIR "../../test_data/meshes/"
+#define TEST_DATA_DIR "../../../test_data/meshes/"
 
 int tests_passed = 0;
 int tests_failed = 0;

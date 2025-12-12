@@ -1,0 +1,153 @@
+Warning: UV count mismatch in ../../test_data/meshes/01_cube.obj
+  Expected: 8 UVs (8 vertices)
+  Found:    14 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/03_sphere.obj
+  Expected: 42 UVs (42 vertices)
+  Found:    63 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/01_cube.obj
+  Expected: 8 UVs (8 vertices)
+  Found:    14 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/03_sphere.obj
+  Expected: 42 UVs (42 vertices)
+  Found:    63 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/02_cylinder.obj
+  Expected: 64 UVs (64 vertices)
+  Found:    130 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/01_cube.obj
+  Expected: 8 UVs (8 vertices)
+  Found:    14 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/03_sphere.obj
+  Expected: 42 UVs (42 vertices)
+  Found:    63 UVs
+  UVs will be ignored.
+Warning: UV count mismatch in ../../test_data/meshes/02_cylinder.obj
+  Expected: 64 UVs (64 vertices)
+  Found:    130 UVs
+  UVs will be ignored.
+
+========================================
+UV Unwrapping Test Suite
+========================================
+
+[TEST] Topology - 01_cube.obj...Loaded ../../test_data/meshes/01_cube.obj: 8 vertices, 12 triangles
+ PASS (Euler: 2)
+[TEST] Topology - 03_sphere.obj...Loaded ../../test_data/meshes/03_sphere.obj: 42 vertices, 80 triangles
+ PASS (Euler: 2)
+[TEST] Seam Detection - 01_cube.obj...Loaded ../../test_data/meshes/01_cube.obj: 8 vertices, 12 triangles
+[DEBUG] Dual graph BFS: Visited 12/12 faces, Tree edges: 11
+[DEBUG] Seam selection: closed mesh, 7 seams
+Detected 7 seams
+ PASS (7 seams)
+[TEST] Seam Detection - 03_sphere.obj...Loaded ../../test_data/meshes/03_sphere.obj: 42 vertices, 80 triangles
+[DEBUG] Dual graph BFS: Visited 80/80 faces, Tree edges: 79
+[DEBUG] Seam selection: closed mesh, 2 seams
+Detected 2 seams
+ PASS (2 seams)
+[TEST] Seam Detection - 02_cylinder.obj...Loaded ../../test_data/meshes/02_cylinder.obj: 64 vertices, 68 triangles
+[DEBUG] Dual graph BFS: Visited 68/68 faces, Tree edges: 67
+[DEBUG] Seam selection: open mesh, 1 seams
+Detected 1 seams
+ PASS (1 seams)
+[TEST] Unwrap - 01_cube.obj...Loaded ../../test_data/meshes/01_cube.obj: 8 vertices, 12 triangles
+
+=== UV Unwrapping ===
+Input: 8 vertices, 12 triangles
+Parameters:
+  Angle threshold: 30.0°
+  Min island faces: 5
+  Pack islands: yes
+  Island margin: 0.020
+
+Topology validation:
+  V=8, E=18, F=12
+  Euler characteristic: 2 (expected 2 for closed mesh)
+[DEBUG] Dual graph BFS: Visited 12/12 faces, Tree edges: 11
+[DEBUG] Seam selection: closed mesh, 7 seams
+Detected 7 seams
+Extracted 1 UV islands
+
+Processing island 1/1...
+  12 faces in island
+LSCM parameterizing 12 faces...
+  Island has 8 vertices
+  LSCM completed
+Quality metrics: (using defaults - implement for accurate values)
+  Avg stretch: 1.00
+  Max stretch: 1.00
+  Coverage: 70.0%
+
+=== Unwrapping Complete ===
+ PASS (islands=1, stretch=1.00)
+[TEST] Unwrap - 03_sphere.obj...Loaded ../../test_data/meshes/03_sphere.obj: 42 vertices, 80 triangles
+
+=== UV Unwrapping ===
+Input: 42 vertices, 80 triangles
+Parameters:
+  Angle threshold: 30.0°
+  Min island faces: 5
+  Pack islands: yes
+  Island margin: 0.020
+
+Topology validation:
+  V=42, E=120, F=80
+  Euler characteristic: 2 (expected 2 for closed mesh)
+[DEBUG] Dual graph BFS: Visited 80/80 faces, Tree edges: 79
+[DEBUG] Seam selection: closed mesh, 2 seams
+Detected 2 seams
+Extracted 1 UV islands
+
+Processing island 1/1...
+  80 faces in island
+LSCM parameterizing 80 faces...
+  Island has 42 vertices
+  LSCM completed
+Quality metrics: (using defaults - implement for accurate values)
+  Avg stretch: 1.00
+  Max stretch: 1.00
+  Coverage: 70.0%
+
+=== Unwrapping Complete ===
+ PASS (islands=1, stretch=1.00)
+[TEST] Unwrap - 02_cylinder.obj...Loaded ../../test_data/meshes/02_cylinder.obj: 64 vertices, 68 triangles
+
+=== UV Unwrapping ===
+Input: 64 vertices, 68 triangles
+Parameters:
+  Angle threshold: 30.0°
+  Min island faces: 5
+  Pack islands: yes
+  Island margin: 0.020
+
+Topology validation:
+  V=64, E=132, F=68
+  Euler characteristic: 0 (expected 2 for closed mesh)
+  Warning: Non-standard Euler characteristic
+  (This may be OK for open meshes or meshes with boundaries)
+[DEBUG] Dual graph BFS: Visited 68/68 faces, Tree edges: 67
+[DEBUG] Seam selection: open mesh, 1 seams
+Detected 1 seams
+Extracted 1 UV islands
+
+Processing island 1/1...
+  68 faces in island
+LSCM parameterizing 68 faces...
+  Island has 64 vertices
+  LSCM completed
+Quality metrics: (using defaults - implement for accurate values)
+  Avg stretch: 1.00
+  Max stretch: 1.00
+  Coverage: 70.0%
+
+=== Unwrapping Complete ===
+ PASS (islands=1, stretch=1.00)
+
+========================================
+Results: 8 passed, 0 failed
+========================================
+

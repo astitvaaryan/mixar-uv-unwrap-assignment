@@ -57,9 +57,56 @@ static int* extract_islands(const Mesh* mesh,
         face_island_ids[i] = -1;
     }
 
-    // YOUR CODE HERE
+    // 1. Create set of seam edge indices for fast lookup
+    std::set<int> seam_set;
+    for (int i = 0; i < num_seams; i++) {
+        seam_set.insert(seam_edges[i]);
+    }
 
-    *num_islands_out = 0;  // Update this with actual count
+    // 2. Build adjacency list for faces (only through non-seam edges)
+    // We iterate edges. If edge is not seam and not boundary (2 faces), add adjacency.
+    std::vector<std::vector<int>> adj(mesh->num_triangles);
+    
+    for (int e = 0; e < topo->num_edges; e++) {
+        if (seam_set.find(e) != seam_set.end()) continue; // Skip seams
+        
+        int f0 = topo->edge_faces[e * 2];
+        int f1 = topo->edge_faces[e * 2 + 1];
+        
+        if (f0 != -1 && f1 != -1) {
+            adj[f0].push_back(f1);
+            adj[f1].push_back(f0);
+        }
+    }
+    
+    // 3. Run BFS to find connected components
+    int current_island_id = 0;
+    
+    for (int start_face = 0; start_face < mesh->num_triangles; start_face++) {
+        if (face_island_ids[start_face] != -1) continue;
+        
+        // Start new island
+        face_island_ids[start_face] = current_island_id;
+        std::vector<int> q;
+        q.push_back(start_face);
+        
+        int head = 0;
+        while(head < (int)q.size()) {
+            int u = q[head++];
+            
+            for (int v : adj[u]) {
+                if (face_island_ids[v] == -1) {
+                    face_island_ids[v] = current_island_id;
+                    q.push_back(v);
+                }
+            }
+        }
+        current_island_id++;
+    }
+    
+    *num_islands_out = current_island_id;
+
+
 
     printf("Extracted %d UV islands\n", *num_islands_out);
 
@@ -83,7 +130,19 @@ static void copy_island_uvs(Mesh* result,
     //     result->uvs[global_idx * 2] = island_uvs[local_idx * 2]
     //     result->uvs[global_idx * 2 + 1] = island_uvs[local_idx * 2 + 1]
 
-    // YOUR CODE HERE
+    for (int local_f = 0; local_f < num_faces; local_f++) {
+        int global_f = face_indices[local_f];
+        
+        for (int j = 0; j < 3; j++) {
+            int global_v = result->triangles[global_f * 3 + j];
+            auto it = global_to_local.find(global_v);
+            if (it != global_to_local.end()) {
+                int local_v = it->second;
+                result->uvs[global_v * 2 + 0] = island_uvs[local_v * 2 + 0];
+                result->uvs[global_v * 2 + 1] = island_uvs[local_v * 2 + 1];
+            }
+        }
+    }
 }
 
 Mesh* unwrap_mesh(const Mesh* mesh,
@@ -144,10 +203,35 @@ Mesh* unwrap_mesh(const Mesh* mesh,
             continue;
         }
 
-        // YOUR CODE HERE:
-        // - Call lscm_parameterize
-        // - Build global_to_local mapping
-        // - Copy UVs to result mesh
+        // Build face indices array
+        int* face_indices_array = (int*)malloc(island_faces.size() * sizeof(int));
+        for(size_t i=0; i<island_faces.size(); i++) face_indices_array[i] = island_faces[i];
+        
+        // Call LSCM
+        float* island_uvs = lscm_parameterize(mesh, face_indices_array, island_faces.size());
+        
+        if (island_uvs) {
+            // Build global_to_local for copying
+            std::map<int, int> island_global_to_local;
+            for(size_t i=0; i<island_faces.size(); i++) {
+                int f = island_faces[i];
+                for(int j=0; j<3; j++) {
+                    int v = mesh->triangles[f*3+j];
+                    if(island_global_to_local.find(v) == island_global_to_local.end()) {
+                        int count = island_global_to_local.size();
+                        island_global_to_local[v] = count;
+                    }
+                }
+            }
+            
+            copy_island_uvs(result, island_uvs, face_indices_array, island_faces.size(), island_global_to_local);
+            
+            free(island_uvs);
+        } else {
+            fprintf(stderr, "  LSCM failed for island %d\n", island_id);
+        }
+        
+        free(face_indices_array);
     }
 
     // STEP 5: Pack islands if requested

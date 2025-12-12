@@ -35,6 +35,9 @@ set(SOURCES
 
 # Main library
 add_library(uvunwrap SHARED ${SOURCES})
+set_target_properties(uvunwrap PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 
 # Test executable
 add_executable(test_unwrap tests/test_unwrap.cpp)

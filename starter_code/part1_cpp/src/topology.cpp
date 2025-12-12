@@ -53,31 +53,55 @@ struct EdgeInfo {
 TopologyInfo* build_topology(const Mesh* mesh) {
     if (!mesh) return NULL;
 
-    // TODO: Implement topology building
-    //
-    // Steps:
-    // 1. Create std::map<Edge, EdgeInfo> to collect edges
-    // 2. Iterate through all triangles
-    //    For each triangle, extract 3 edges
-    //    Add to map, tracking which faces use each edge
-    // 3. Convert map to arrays (edges, edge_faces)
-    // 4. Allocate TopologyInfo and fill arrays
-    //
-    // Hints:
-    // - Use Edge struct for automatic ordering
-    // - Each edge should have 1 or 2 adjacent faces
-    // - Boundary edges have only 1 face (set face1 = -1)
-    //
-    // See reference/topology_example.cpp for complete example
+    // Map to collect unique edges
+    std::map<Edge, EdgeInfo> edge_map;
 
+    // Iterate through all triangles
+    for (int f = 0; f < mesh->num_triangles; f++) {
+        int v0 = mesh->triangles[f * 3 + 0];
+        int v1 = mesh->triangles[f * 3 + 1];
+        int v2 = mesh->triangles[f * 3 + 2];
+
+        // Process 3 edges: (v0,v1), (v1,v2), (v2,v0)
+        int vs[3] = {v0, v1, v2};
+        for (int i = 0; i < 3; i++) {
+            int a = vs[i];
+            int b = vs[(i + 1) % 3];
+            Edge e(a, b);
+
+            // Check if edge exists
+            if (edge_map.find(e) == edge_map.end()) {
+                // New edge
+                EdgeInfo info;
+                info.face0 = f;
+                edge_map[e] = info;
+            } else {
+                // Existing edge, set second face
+                edge_map[e].face1 = f;
+            }
+        }
+    }
+
+    // Allocate TopologyInfo
     TopologyInfo* topo = (TopologyInfo*)malloc(sizeof(TopologyInfo));
+    topo->num_edges = edge_map.size();
+    topo->edges = (int*)malloc(topo->num_edges * 2 * sizeof(int));
+    topo->edge_faces = (int*)malloc(topo->num_edges * 2 * sizeof(int));
 
-    // Initialize to safe defaults (prevents crashes before implementation)
-    topo->edges = NULL;
-    topo->num_edges = 0;
-    topo->edge_faces = NULL;
+    // Fill arrays
+    int idx = 0;
+    for (std::map<Edge, EdgeInfo>::iterator it = edge_map.begin(); it != edge_map.end(); ++it) {
+        const Edge& e = it->first;
+        const EdgeInfo& info = it->second;
 
-    // TODO: Your implementation here
+        topo->edges[idx * 2 + 0] = e.v0;
+        topo->edges[idx * 2 + 1] = e.v1;
+
+        topo->edge_faces[idx * 2 + 0] = info.face0;
+        topo->edge_faces[idx * 2 + 1] = info.face1;
+
+        idx++;
+    }
 
     return topo;
 }
