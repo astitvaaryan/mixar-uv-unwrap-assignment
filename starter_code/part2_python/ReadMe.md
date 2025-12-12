@@ -1,73 +1,74 @@
-Part 2 — Python UV Unwrap Processor
+# Part 2 — Python UV Unwrap Processor
 
-This module provides all Python utilities for UV unwrapping, wrapping the C++ LSCM implementation from Part 1.
+This module contains the full Python-side processing pipeline for UV unwrapping.  
+It wraps the C++ LSCM engine (Part 1) and provides a command-line interface, quality metrics, and multithreaded batch processing.
 
-✔ Features Implemented
+---
 
-CLI tool (cli.py) with 3 modes:
+## ✅ Features Implemented
 
-unwrap — unwrap a single mesh file
+### 1. Command Line Interface (`cli.py`)
+Supports three fully functional modes:
 
-batch — unwrap many meshes in parallel using multithreading
+#### 🔹 `unwrap` — Unwrap a single OBJ
+Loads mesh → calls C++ unwrap → writes output OBJ.
 
-optimize — automatically search best parameters (stretch / coverage)
+#### 🔹 `batch` — Multithreaded batch unwrapping
+- Uses `ThreadPoolExecutor`
+- Parallel processing
+- Live progress updates
 
-Quality Metrics
+#### 🔹 `optimize` — Parameter search
+Searches best:
+- angle thresholds  
+- minimum island faces  
+Optimizes either *stretch* or *coverage*.
 
-Stretch
+---
 
-Coverage %
+## 2. Quality Metrics (`metrics.py`)
 
-Angle distortion
+Implemented metrics:
 
-Multithreading Support
+- **Stretch** (SVD-based triangle distortion)
+- **UV Coverage %**
+- **Angle Distortion**
 
-Custom UnwrapProcessor built using ThreadPoolExecutor
+These metrics are used in:
+- `unwrap` mode output summary  
+- `batch` mode per-file result  
+- `optimizer` search evaluation  
 
-Progress callback (on_progress)
+---
 
-Aggregated summary results
+## 3. Multithreading (`processor.py`)
 
-Bindings
+`UnwrapProcessor` includes:
 
-C++ mesh loading and saving
+- ThreadPoolExecutor worker pool  
+- Safe progress callbacks  
+- Per-file metrics collection  
+- Batch summary statistics  
 
-Python mesh structure wrapping C++ data
+This allows fast processing of 10–100+ meshes.
 
-Parameter passing for angle threshold, minimum faces, margin, packing
+---
 
-CLI Usage
-1️⃣ Unwrap a single OBJ file
-python cli.py unwrap \
-    ../test_data/meshes/01_cube.obj \
-    output.obj \
-    --angle 30 \
-    --min-faces 5 \
-    --margin 0.02
+## 4. Python ↔ C++ Bindings (`bindings.py`)
 
-2️⃣ Batch Unwrap (multithreaded)
-python cli.py batch \
-    ../test_data/meshes \
-    outputs/ \
-    --threads 4
+Bindings implemented using `ctypes`:
 
-3️⃣ Optimize Parameters
-python cli.py optimize \
-    ../test_data/meshes/01_cube.obj \
-    --metric stretch
+- Load OBJ via C++
+- Convert C arrays → NumPy arrays
+- Convert NumPy arrays → C arrays
+- Pass unwrap parameters to C++:
+  - angle threshold  
+  - min island faces  
+  - island margins  
+  - pack / no-pack  
+- Free memory on both Python and C++ sides
 
-Folder Structure
-part2_python/
-│── bindings.py
-│── processor.py
-│── metrics.py
-│── optimizer.py
-└── cli.py
+---
 
-Notes
+## 📁 Directory Structure
 
-Metrics are implemented with NumPy.
-
-Batch mode produces per-file results and a final summary.
-
-All Part 2 tests are passing.
